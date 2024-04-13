@@ -11,4 +11,7 @@ data class AppConfig(
 
     val smartThingToken: String,
     val smartThingBaseUrl: String,
+
+    val smartThingsOAuthClientId: String,
+    val smartThingsOAuthClientSecret: String
 )

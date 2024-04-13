@@ -23,12 +23,16 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
+
 
     implementation("com.illposed.osc:javaosc-core:0.8")
     implementation("org.slf4j:slf4j-api:2.0.3")
     implementation("ch.qos.logback:logback-classic:1.4.1")
 
     implementation("com.smartthings.sdk:smartapp-core:0.0.4-PREVIEW")
+    implementation("com.smartthings.sdk:smartthings-client:0.0.4-PREVIEW")
     implementation("com.smartthings.sdk:smartapp-spring:0.0.4-PREVIEW")
 }
 
