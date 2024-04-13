@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
 
 
 @RestController
 class SmartThingsController(
-    smartAppDef: SmartAppDefinition
-    ) {
+    smartAppDef: SmartAppDefinition,
+    private val httpVerificationService: HttpVerificationService,
+) {
     private val smartApp = SmartApp.of(smartAppDef)
 
     @GetMapping("/")
@@ -31,7 +31,14 @@ class SmartThingsController(
 
     @PostMapping("/smartapp")
     fun handle(@RequestBody executionRequest: ExecutionRequest, request: HttpServletRequest): ExecutionResponse {
-
+        infoLog("Received request: $executionRequest")
+        val headers: Map<String, String> = request.headerNames.toList().stream()
+            .collect(Collectors.toMap(Function.identity()) { request.getHeader(it) })
+        if (executionRequest.lifecycle != AppLifecycle.PING
+            && !httpVerificationService.verify(request.method, request.requestURI, headers)
+        ) {
+            throw IllegalArgumentException("unable to verify request");
+        }
         return smartApp.execute(executionRequest)
     }
 }

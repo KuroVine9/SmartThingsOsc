@@ -46,6 +46,7 @@ class SmartThingsConfig {
                 infoLog("deviceInfo={}", it.deviceConfig) // TODO 디바이스 정보 저장
             }
 
+
             Response.ok(InstallResponseData())
         }
     }
@@ -153,6 +154,11 @@ class SmartThingsConfig {
     @Bean
     fun apiClient(): ApiClient {
         return ApiClient()
+    }
+
+    @Bean
+    fun httpVerificationService(): HttpVerificationService {
+        return HttpVerificationService(httpClient())
     }
 
     @Bean
