@@ -1,4 +1,4 @@
-package com.kuro9.iot.config
+package com.kuro9.iot.enumurate
 
 import com.smartthings.sdk.smartapp.core.models.DeviceSetting
 import com.smartthings.sdk.smartapp.core.models.Section

@@ -1,6 +1,7 @@
 package com.kuro9.iot.config
 
 import com.kuro9.iot.domain.Devices
+import com.kuro9.iot.enumurate.InternalDeviceType
 import com.kuro9.iot.repository.IotDeviceRepository
 import com.kuro9.iot.utils.infoLog
 import com.smartthings.sdk.client.ApiClient

@@ -1,6 +1,7 @@
 package com.kuro9.iot.controller
 
 import com.kuro9.iot.exception.UnauthorizedException
+import com.kuro9.iot.service.SmartThingsService
 import com.kuro9.iot.utils.infoLog
 import com.smartthings.sdk.smartapp.core.SmartApp
 import com.smartthings.sdk.smartapp.core.SmartAppDefinition
@@ -21,6 +22,7 @@ import java.util.stream.Collectors
 class SmartThingsController(
     smartAppDef: SmartAppDefinition,
     private val httpVerificationService: HttpVerificationService,
+    private val smartThingsService: SmartThingsService
 ) {
     private val smartApp = SmartApp.of(smartAppDef)
 
