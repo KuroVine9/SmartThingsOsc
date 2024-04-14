@@ -1,5 +1,6 @@
 package com.kuro9.iot.controller
 
+import com.kuro9.iot.exception.UnauthorizedException
 import com.kuro9.iot.utils.infoLog
 import com.smartthings.sdk.smartapp.core.SmartApp
 import com.smartthings.sdk.smartapp.core.SmartAppDefinition
@@ -31,13 +32,13 @@ class SmartThingsController(
 
     @PostMapping("/smartapp")
     fun handle(@RequestBody executionRequest: ExecutionRequest, request: HttpServletRequest): ExecutionResponse {
-        infoLog("Received request: $executionRequest")
+
         val headers: Map<String, String> = request.headerNames.toList().stream()
             .collect(Collectors.toMap(Function.identity()) { request.getHeader(it) })
         if (executionRequest.lifecycle != AppLifecycle.PING
             && !httpVerificationService.verify(request.method, request.requestURI, headers)
         ) {
-            throw IllegalArgumentException("unable to verify request");
+            throw UnauthorizedException("unable to verify request");
         }
         return smartApp.execute(executionRequest)
     }
