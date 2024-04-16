@@ -2,34 +2,41 @@ package com.kuro9.iot.vo
 
 import com.smartthings.sdk.client.models.CapabilitySubscriptionDetail
 import com.smartthings.sdk.client.models.DeviceSubscriptionDetail
+import com.smartthings.sdk.client.models.SubscriptionRequest
 import com.smartthings.sdk.client.models.SubscriptionSource
 
-sealed interface SubscriptionRequest {
+sealed interface AppSubscriptionRequest {
     val appId: String
     val sourceType: SubscriptionSource
 
     data class DeviceSubscriptionRequest(
         override val appId: String,
         val device: DeviceSubscriptionDetail
-    ) : SubscriptionRequest {
+    ) : AppSubscriptionRequest {
         override val sourceType = SubscriptionSource.DEVICE
     }
 
     data class CapabilitySubscriptionRequest(
         override val appId: String,
         val capability: CapabilitySubscriptionDetail
-    ) : SubscriptionRequest {
+    ) : AppSubscriptionRequest {
         override val sourceType = SubscriptionSource.CAPABILITY
     }
 
-    fun toRequest(): com.smartthings.sdk.client.models.SubscriptionRequest {
-        return com.smartthings.sdk.client.models.SubscriptionRequest().apply {
-            sourceType = this.sourceType
+    fun toRequest(): SubscriptionRequest {
+        val request = SubscriptionRequest().apply {
+            sourceType = this@AppSubscriptionRequest.sourceType
+        }
+        when (this) {
+            is DeviceSubscriptionRequest -> {
+                request.device = device
+            }
 
-            when (this) {
-                is DeviceSubscriptionRequest -> {}
-                is CapabilitySubscriptionRequest -> {}
+            is CapabilitySubscriptionRequest -> {
+                request.capability = capability
             }
         }
+
+        return request
     }
 }

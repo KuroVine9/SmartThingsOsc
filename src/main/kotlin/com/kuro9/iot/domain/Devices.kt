@@ -14,6 +14,8 @@ class Devices(
     val locationId: String,
 
     val internalDeviceId: String,
+
+    var subscriptionId: String?,
 ) {
     data class PK(
         val deviceId: String = "",
