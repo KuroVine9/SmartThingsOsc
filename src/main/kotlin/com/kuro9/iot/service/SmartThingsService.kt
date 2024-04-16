@@ -6,6 +6,7 @@ import com.kuro9.iot.vo.DeviceStateChangeRequest
 import com.kuro9.iot.vo.DeviceStateChangeResponse
 import com.smartthings.sdk.client.ApiClient
 import com.smartthings.sdk.client.methods.DevicesApi
+import com.smartthings.sdk.client.methods.SubscriptionsApi
 import com.smartthings.sdk.client.models.CapabilityStatus
 import com.smartthings.sdk.client.models.DeviceCommand
 import com.smartthings.sdk.client.models.DeviceCommandsRequest
@@ -38,6 +39,11 @@ class SmartThingsService(
             payload.componentId,
             payload.capability
         )
+    }
+
+    fun createDeviceSubscription() {
+        val subscriptionApi = apiClient.buildClient(SubscriptionsApi::class.java)
+        return subscriptionApi.saveSubscription()
     }
 
     private fun String.toBearerString() = "Bearer $this"
