@@ -34,7 +34,6 @@ class SmartThingsController(
 
     @PostMapping("/smartapp")
     fun handle(@RequestBody executionRequest: ExecutionRequest, request: HttpServletRequest): ExecutionResponse {
-
         val headers: Map<String, String> = request.headerNames.toList().stream()
             .collect(Collectors.toMap(Function.identity()) { request.getHeader(it) })
         if (executionRequest.lifecycle != AppLifecycle.PING

@@ -1,8 +1,8 @@
 package com.kuro9.iot.service
 
 import com.kuro9.iot.config.AppConfig
-import com.kuro9.iot.domain.Devices
 import com.kuro9.iot.repository.IotDeviceRepository
+import com.kuro9.iot.utils.infoLog
 import com.kuro9.iot.vo.AppSubscriptionRequest
 import com.kuro9.iot.vo.DeviceState
 import com.kuro9.iot.vo.DeviceStateChangeRequest
@@ -48,28 +48,23 @@ class SmartThingsService(
     }
 
     @Transactional(rollbackFor = [Exception::class])
-    fun createSubscription(appId: String, request: AppSubscriptionRequest): Subscription {
+    fun createSubscription(request: AppSubscriptionRequest): Subscription {
         val subscriptionApi = apiClient.buildClient(SubscriptionsApi::class.java)
+        infoLog("request={}", request.toString())
         val result = subscriptionApi.saveSubscription(
-            appId,
-            config.smartThingToken.toBearerString(),
+            request.appId,
+            request.authToken.toBearerString(),
             request.toRequest()
         )
-
         if (result.id == null) throw IllegalStateException("Subscription Id is null!")
-
         if (request is AppSubscriptionRequest.CapabilitySubscriptionRequest) return result
-
-        val deviceRequest = request as AppSubscriptionRequest.DeviceSubscriptionRequest
-        val deviceObj = deviceRepo.findById(Devices.PK(deviceRequest.device.deviceId, appId))
-        deviceObj.get().subscriptionId = result.id
 
         return result
     }
 
-    fun deleteSubscription(appId: String, request: AppSubscriptionRequest): Subscription {
+    fun deleteSubscription(appId: String, subscriptionId: String, authToken: String) {
         val subscriptionsApi = apiClient.buildClient(SubscriptionsApi::class.java)
-        subscriptionsApi.deleteSubscription()
+        subscriptionsApi.deleteSubscription(appId, subscriptionId, authToken.toBearerString())
     }
 
     private fun String.toBearerString() = "Bearer $this"

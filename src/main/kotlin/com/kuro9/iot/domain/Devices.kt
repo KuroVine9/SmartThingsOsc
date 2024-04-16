@@ -15,7 +15,8 @@ class Devices(
 
     val internalDeviceId: String,
 
-    var subscriptionId: String?,
+    val subscriptionId: String,
+    val authToken: String
 ) {
     data class PK(
         val deviceId: String = "",

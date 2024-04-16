@@ -3,8 +3,11 @@ package com.kuro9.iot.config
 import com.kuro9.iot.domain.Devices
 import com.kuro9.iot.enumurate.InternalDeviceType
 import com.kuro9.iot.repository.IotDeviceRepository
+import com.kuro9.iot.service.SmartThingsService
 import com.kuro9.iot.utils.infoLog
+import com.kuro9.iot.vo.AppSubscriptionRequest
 import com.smartthings.sdk.client.ApiClient
+import com.smartthings.sdk.client.models.DeviceSubscriptionDetail
 import com.smartthings.sdk.smartapp.core.Response
 import com.smartthings.sdk.smartapp.core.SmartAppDefinition
 import com.smartthings.sdk.smartapp.core.extensions.*
@@ -42,18 +45,31 @@ class SmartThingsConfig {
     // @Component.
     // 여기서 deviceId 및 capabilityId 저장
     @Bean
-    fun installHandler(deviceRepo: IotDeviceRepository): InstallHandler {
+    fun installHandler(deviceRepo: IotDeviceRepository, service: SmartThingsService): InstallHandler {
         return InstallHandler { executionRequest: ExecutionRequest ->
             infoLog("INSTALL: executionRequest = $executionRequest")
 
             val appId = executionRequest.installData.installedApp.installedAppId
             val locationId = executionRequest.installData.installedApp.locationId
             val configMap = executionRequest.installData.installedApp.config
+            val authToken = executionRequest.installData.authToken
 
             InternalDeviceType.entries.forEach { type ->
                 configMap[type.internalId]?.let {
                     it.forEach { deviceConfig ->
                         with(deviceConfig.deviceConfig) {
+
+                            val response =
+                                service.createSubscription(AppSubscriptionRequest.DeviceSubscriptionRequest(
+                                    appId,
+                                    authToken,
+                                    DeviceSubscriptionDetail().apply {
+                                        this.deviceId = this@with.deviceId
+                                        this.isStateChangeOnly = true
+                                        this.componentId = this@with.componentId
+                                    }
+                                ))
+
                             deviceRepo.save(
                                 Devices(
                                     deviceId = deviceId,
@@ -61,6 +77,8 @@ class SmartThingsConfig {
                                     componentId = componentId,
                                     locationId = locationId,
                                     internalDeviceId = type.internalId,
+                                    subscriptionId = response.id,
+                                    authToken = authToken
                                 )
                             )
                         }
@@ -74,7 +92,7 @@ class SmartThingsConfig {
     }
 
     @Bean
-    fun uninstallHandler(deviceRepo: IotDeviceRepository): UninstallHandler {
+    fun uninstallHandler(deviceRepo: IotDeviceRepository, service: SmartThingsService): UninstallHandler {
         return UninstallHandler { executionRequest: ExecutionRequest ->
             infoLog("UNINSTALL: executionRequest = $executionRequest")
 
@@ -82,6 +100,7 @@ class SmartThingsConfig {
 
             deviceRepo.findAllByAppId(appId).forEach {
                 infoLog("Deleting device: $it")
+                service.deleteSubscription(appId, it.subscriptionId, it.authToken)
                 deviceRepo.delete(it)
             }
 
@@ -90,7 +109,7 @@ class SmartThingsConfig {
     }
 
     @Bean
-    fun updateHandler(deviceRepo: IotDeviceRepository): UpdateHandler {
+    fun updateHandler(deviceRepo: IotDeviceRepository, service: SmartThingsService): UpdateHandler {
         // The update lifecycle event is called when the user updates
         // configuration options previously set via the install lifecycle
         // event so this should be similar to that handler.
@@ -102,8 +121,10 @@ class SmartThingsConfig {
             val appId = executionRequest.updateData.installedApp.installedAppId
             val locationId = executionRequest.updateData.installedApp.locationId
             val configMap = executionRequest.updateData.installedApp.config
+            val authToken = executionRequest.updateData.authToken
 
             deviceRepo.findAllByAppId(appId).forEach {
+                service.deleteSubscription(appId, it.subscriptionId, it.authToken)
                 deviceRepo.delete(it)
             }
 
@@ -112,6 +133,18 @@ class SmartThingsConfig {
                 configMap[type.internalId]?.let {
                     it.forEach { deviceConfig ->
                         with(deviceConfig.deviceConfig) {
+
+                            val response =
+                                service.createSubscription(AppSubscriptionRequest.DeviceSubscriptionRequest(
+                                    appId,
+                                    authToken,
+                                    DeviceSubscriptionDetail().apply {
+                                        this.deviceId = this@with.deviceId
+                                        this.isStateChangeOnly = true
+                                        this.componentId = this@with.componentId
+                                    }
+                                ))
+
                             deviceRepo.save(
                                 Devices(
                                     deviceId = deviceId,
@@ -119,6 +152,8 @@ class SmartThingsConfig {
                                     componentId = componentId,
                                     locationId = locationId,
                                     internalDeviceId = type.internalId,
+                                    subscriptionId = response.id,
+                                    authToken = authToken
                                 )
                             )
                         }
@@ -139,7 +174,7 @@ class SmartThingsConfig {
                 name = "SmartThingsOsc"
                 description = "SmartThings custom Controller"
                 id = "app"
-                permissions = listOf("r:devices:*", "w:devices:*", "x:devices:*")
+                permissions = listOf("r:devices:*", "x:devices:*", "w:devices:*")
                 firstPageId = "1"
             }
         }

@@ -7,10 +7,12 @@ import com.smartthings.sdk.client.models.SubscriptionSource
 
 sealed interface AppSubscriptionRequest {
     val appId: String
+    val authToken: String
     val sourceType: SubscriptionSource
 
     data class DeviceSubscriptionRequest(
         override val appId: String,
+        override val authToken: String,
         val device: DeviceSubscriptionDetail
     ) : AppSubscriptionRequest {
         override val sourceType = SubscriptionSource.DEVICE
@@ -18,6 +20,7 @@ sealed interface AppSubscriptionRequest {
 
     data class CapabilitySubscriptionRequest(
         override val appId: String,
+        override val authToken: String,
         val capability: CapabilitySubscriptionDetail
     ) : AppSubscriptionRequest {
         override val sourceType = SubscriptionSource.CAPABILITY

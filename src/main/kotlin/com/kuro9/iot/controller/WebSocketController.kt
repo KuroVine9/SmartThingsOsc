@@ -12,9 +12,9 @@ import org.springframework.stereotype.Controller
 class WebSocketController(private val smartThingsService: SmartThingsService) {
 
     // destination: /pub/request
-    @MessageMapping("/request")
-    fun stateChangeRequest(body: DeviceStateChangeRequest) {
-        infoLog("Received state change request: $body")
+    @MessageMapping("/state")
+    fun getDeviceState(body: DeviceStateChangeRequest) {
+        infoLog("Received get state request: $body")
 
         // webSocketService.changeState(body)
         val state = smartThingsService.getDeviceState(
@@ -38,4 +38,11 @@ class WebSocketController(private val smartThingsService: SmartThingsService) {
             )
         }
     }
+
+    @MessageMapping("/request")
+    fun changeDeviceState(body: DeviceStateChangeRequest) {
+        infoLog("Received state change request: $body")
+        smartThingsService.changeState(body)
+    }
+
 }
