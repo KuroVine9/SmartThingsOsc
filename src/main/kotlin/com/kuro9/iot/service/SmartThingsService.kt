@@ -3,6 +3,7 @@ package com.kuro9.iot.service
 import com.kuro9.iot.config.AppConfig
 import com.kuro9.iot.repository.IotDeviceRepository
 import com.kuro9.iot.utils.infoLog
+import com.kuro9.iot.utils.warnLog
 import com.kuro9.iot.vo.AppSubscriptionRequest
 import com.kuro9.iot.vo.DeviceState
 import com.kuro9.iot.vo.DeviceStateChangeRequest
@@ -28,6 +29,11 @@ class SmartThingsService(
 ) {
     fun broadcast(payload: DeviceStateChangeResponse) = messageTemplate.convertAndSend("/sub", payload)
     fun changeState(payload: DeviceStateChangeRequest) {
+        if (deviceRepo.findByDeviceIdAndSubscriptionId(payload.deviceId, payload.subscriptionId) == null) {
+            warnLog("Device not found")
+            return
+        }
+
         val devicesApi = apiClient.buildClient(DevicesApi::class.java)
 
         val command = DeviceCommand()

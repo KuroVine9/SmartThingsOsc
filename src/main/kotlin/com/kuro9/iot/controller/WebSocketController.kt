@@ -28,14 +28,17 @@ class WebSocketController(private val smartThingsService: SmartThingsService) {
         infoLog("State after change: $state")
 
         state?.let {
-            smartThingsService.broadcast(
-                DeviceStateChangeResponse(
-                    body.capability,
-                    body.componentId,
-                    body.deviceId,
-                    it.values.first()
+            smartThingsService.getDeviceInternalId(body.deviceId, body.subscriptionId)?.let { internalId ->
+                smartThingsService.broadcast(
+                    DeviceStateChangeResponse(
+                        body.capability,
+                        body.componentId,
+                        body.deviceId,
+                        internalId,
+                        it.values.first()
+                    )
                 )
-            )
+            }
         }
     }
 
