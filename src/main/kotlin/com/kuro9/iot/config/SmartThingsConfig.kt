@@ -221,6 +221,10 @@ class SmartThingsConfig {
                 it.events.forEach { event ->
                     when (event.eventType) {
                         EventType.DEVICE_EVENT -> {
+                            if (event.deviceEvent.capability != "switch") return@EventHandler Response.ok(
+                                EventResponseData()
+                            )
+
                             service.broadcast(
                                 DeviceStateChangeResponse(
                                     event.deviceEvent.capability,
