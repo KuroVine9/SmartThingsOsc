@@ -5,6 +5,7 @@ import com.kuro9.iot.enumurate.InternalDeviceType
 import com.kuro9.iot.repository.IotDeviceRepository
 import com.kuro9.iot.service.SmartThingsService
 import com.kuro9.iot.utils.infoLog
+import com.kuro9.iot.utils.warnLog
 import com.kuro9.iot.vo.AppSubscriptionRequest
 import com.kuro9.iot.vo.DeviceStateChangeResponse
 import com.smartthings.sdk.client.ApiClient
@@ -225,16 +226,26 @@ class SmartThingsConfig {
                                 EventResponseData()
                             )
 
-                            service.broadcast(
-                                DeviceStateChangeResponse(
-                                    event.deviceEvent.capability,
-                                    event.deviceEvent.componentId,
-                                    event.deviceEvent.deviceId,
-                                    AttributeState().apply {
-                                        value = event.deviceEvent.value
-                                    }
-                                )
+                            service.getDeviceInternalId(event.deviceEvent.deviceId, event.deviceEvent.subscriptionName)
+                                ?.let { internalId ->
+                                    service.broadcast(
+                                        DeviceStateChangeResponse(
+                                            event.deviceEvent.capability,
+                                            event.deviceEvent.componentId,
+                                            event.deviceEvent.deviceId,
+                                            internalId,
+                                            AttributeState().apply {
+                                                value = event.deviceEvent.value
+                                            }
+                                        )
+                                    )
+                                } ?: warnLog(
+                                "cannot find device={}, subscription={}",
+                                event.deviceEvent.deviceId,
+                                event.deviceEvent.subscriptionName
                             )
+
+
                         }
 
                         EventType.MODE_EVENT -> {

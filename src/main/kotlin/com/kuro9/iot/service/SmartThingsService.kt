@@ -47,6 +47,10 @@ class SmartThingsService(
         )
     }
 
+    fun getDeviceInternalId(deviceId: String, subscriptionId: String): String? {
+        return deviceRepo.findByDeviceIdAndSubscriptionId(deviceId, subscriptionId)?.internalDeviceId
+    }
+
     @Transactional(rollbackFor = [Exception::class])
     fun createSubscription(request: AppSubscriptionRequest): Subscription {
         val subscriptionApi = apiClient.buildClient(SubscriptionsApi::class.java)

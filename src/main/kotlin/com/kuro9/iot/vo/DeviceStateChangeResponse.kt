@@ -6,5 +6,6 @@ data class DeviceStateChangeResponse(
     val capability: String,
     val componentId: String,
     val deviceId: String,
+    val internalId: String,
     val state: AttributeState
 )

@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface IotDeviceRepository : JpaRepository<Devices, Devices.PK> {
     fun findAllByInternalDeviceId(internalDeviceId: String): List<Devices>
     fun findAllByAppId(appId: String): List<Devices>
+
+    fun findByDeviceIdAndSubscriptionId(deviceId: String, subscriptionId: String): Devices?
 }
