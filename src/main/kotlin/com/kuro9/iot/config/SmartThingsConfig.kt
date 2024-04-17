@@ -6,7 +6,9 @@ import com.kuro9.iot.repository.IotDeviceRepository
 import com.kuro9.iot.service.SmartThingsService
 import com.kuro9.iot.utils.infoLog
 import com.kuro9.iot.vo.AppSubscriptionRequest
+import com.kuro9.iot.vo.DeviceStateChangeResponse
 import com.smartthings.sdk.client.ApiClient
+import com.smartthings.sdk.client.models.AttributeState
 import com.smartthings.sdk.client.models.DeviceSubscriptionDetail
 import com.smartthings.sdk.smartapp.core.Response
 import com.smartthings.sdk.smartapp.core.SmartAppDefinition
@@ -211,7 +213,7 @@ class SmartThingsConfig {
     }
 
     @Bean
-    fun eventHandler(): EventHandler {
+    fun eventHandler(service: SmartThingsService): EventHandler {
         return EventHandler { executionRequest: ExecutionRequest ->
             infoLog("EVENT: executionRequest = $executionRequest")
 
@@ -219,7 +221,16 @@ class SmartThingsConfig {
                 it.events.forEach { event ->
                     when (event.eventType) {
                         EventType.DEVICE_EVENT -> {
-                            infoLog(event.deviceEvent.toString())
+                            service.broadcast(
+                                DeviceStateChangeResponse(
+                                    event.deviceEvent.capability,
+                                    event.deviceEvent.componentId,
+                                    event.deviceEvent.deviceId,
+                                    AttributeState().apply {
+                                        value = event.deviceEvent.value
+                                    }
+                                )
+                            )
                         }
 
                         EventType.MODE_EVENT -> {

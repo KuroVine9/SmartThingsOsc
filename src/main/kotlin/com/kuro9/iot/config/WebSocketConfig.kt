@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/iot/ws").setAllowedOrigins("*")
+        registry.addEndpoint("/iot/ws").setAllowedOrigins("http://localhost:8080").withSockJS()
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {

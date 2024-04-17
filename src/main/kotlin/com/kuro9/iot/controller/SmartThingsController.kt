@@ -29,7 +29,7 @@ class SmartThingsController(
     @GetMapping("/")
     fun home(): String {
         infoLog("Received request for home")
-        return "This app only functions as a SmartThings Automation webhook endpoint app"
+        return "Not Implemented, but you can discord me at @kurovine9"
     }
 
     @PostMapping("/smartapp")
