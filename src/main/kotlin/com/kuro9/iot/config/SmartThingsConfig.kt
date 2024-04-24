@@ -289,8 +289,8 @@ class SmartThingsConfig {
         config: AppConfig
     ): TokenRefreshService {
         return TokenRefreshServiceImpl(
-            config.smartThingsOAuthClientId,
-            config.smartThingsOAuthClientSecret,
+            config.smartAppClientId,
+            config.smartAppClientSecret,
             httpClient()
         )
     }
